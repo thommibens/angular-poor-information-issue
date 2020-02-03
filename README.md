@@ -1,27 +1,24 @@
 # Poc
 
-This project was generated with [Angular CLI](https://github.com/angular/angular-cli) version 8.3.24.
+This is a reproduction of an Angular issue.
+When compiling with `--prod` parameter enabled the Angular builder fail with the following message: __ERROR in Cannot assign to a reference or variable!__
+Without any information about the error.
 
-## Development server
+## The example error
+In this demo the error is located in `src/app/app.component.html` on line __4__.
+According to [@Angular/material documentation](https://material.angular.io/components/select/api) the expression `[(value)]="element"` is wrong. The `value` paramenter is one-way so the correct expression should be `[value]="element"`.
 
-Run `ng serve` for a dev server. Navigate to `http://localhost:4200/`. The app will automatically reload if you change any of the source files.
+## Why another Issue.
+Some other issues have been opened, and closed after [this PR](https://github.com/angular/angular/pull/34339) has been merged, but this use-case is a little different.
+In this case the wrong expression is harder to find with the information given by the build log cause the Expression Parser is not parsing the html "as is" but a "pre-elaborated" version.
+The error message (with the currently fixed builder) will be like this:
+__Cannot assign value "$event" to template variable "element". Template variables are read-only.__
+But it can be hard to find the true error since there is no expression that explicit assign "$event" to variable "element". Especially in large projects.
 
-## Code scaffolding
+## Advice
+Can be usefull have the location of the wrong expression within the error log. Like the name of the file and the line.
 
-Run `ng generate component component-name` to generate a new component. You can also use `ng generate directive|pipe|service|class|guard|interface|enum|module`.
-
-## Build
-
-Run `ng build` to build the project. The build artifacts will be stored in the `dist/` directory. Use the `--prod` flag for a production build.
-
-## Running unit tests
-
-Run `ng test` to execute the unit tests via [Karma](https://karma-runner.github.io).
-
-## Running end-to-end tests
-
-Run `ng e2e` to execute the end-to-end tests via [Protractor](http://www.protractortest.org/).
-
-## Further help
-
-To get more help on the Angular CLI use `ng help` or go check out the [Angular CLI README](https://github.com/angular/angular-cli/blob/master/README.md).
+## To reproduce the error
+```console
+$ npm run build:prod 
+```
